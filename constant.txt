@@ -27,4 +27,4 @@ NOTIFICATION_EMAIL=kentaro.suzuki984@gmail.com
  自動化を毎日実行する時刻を設定してください
  例: 00:00 = 深夜0時、09:30 = 午前9時30分、14:15 = 午後2時15分
 
-SCHEDULE_TIME=00:00;
+SCHEDULE_TIME=00:05
