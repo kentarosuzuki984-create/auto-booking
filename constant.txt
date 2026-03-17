@@ -1,0 +1,30 @@
+ 設定ファイル - タイムズカー予約自動化
+ 
+ 非エンジニア向けの説明:
+ 1. = 記号の後の値のみを変更してください
+ 2. 変数名（= 記号の前のテキスト）は変更しないでください
+ 3. = 記号を削除しないでください
+ 4. 変更後はファイルを保存してください
+ 5. 変更を反映するにはプログラムを再起動してください
+ 
+ 例:
+     間違い:  ID_first = 0030-          (引用符がない、余分なスペース)
+     間違い:  ID_FIRST = "0030-"        (変数名を変更)
+     正しい:  ID_first=0030-            (正しい - = の周りにスペースなし)
+ 
+
+ID_first=0030-
+ID_second=782547
+password=H16k1ex00!
+
+address1=都漁連水産会館
+
+GMAIL_USER=kentaro.suzuki984@gmail.com
+GMAIL_APP_PASSWORD=dyfe apyp kjrn dkyr
+NOTIFICATION_EMAIL=kentaro.suzuki984@gmail.com
+
+
+ 自動化を毎日実行する時刻を設定してください
+ 例: 00:00 = 深夜0時、09:30 = 午前9時30分、14:15 = 午後2時15分
+
+SCHEDULE_TIME=00:00;
