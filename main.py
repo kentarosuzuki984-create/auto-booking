@@ -2,8 +2,8 @@ import time
 import smtplib
 import os
 import ssl
-import schedule
-import threading
+# import schedule
+# import threading
 from datetime import datetime, timedelta
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -15,65 +15,29 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
 
 def load_constants():
-    """設定ファイルから設定値を読み込む"""
-    import sys
-    
-    constants = {}
-    
-    if getattr(sys, 'frozen', False):
-        base_path = sys._MEIPASS
-        exe_dir = os.path.dirname(sys.executable)
-    else:
-        base_path = os.path.dirname(os.path.abspath(__file__))
-        exe_dir = base_path
-    
-    possible_paths = [
-        os.path.join(exe_dir, 'constant.txt'),
-        os.path.join(base_path, 'constant.txt'),
-        os.path.join(os.getcwd(), 'constant.txt'),
-    ]
-    
-    config_file = None
-    for path in possible_paths:
-        if os.path.exists(path):
-            config_file = path
-            break
-    
-    if config_file is None:
-        error_msg = f"設定ファイルが見つかりません。以下の場所を確認しました:\n"
-        for path in possible_paths:
-            error_msg += f"  - {path}\n"
-        error_msg += "\nconstant.txt を実行ファイルと同じディレクトリに配置してください。"
-        raise FileNotFoundError(error_msg)
-    
-    with open(config_file, 'r', encoding='utf-8') as f:
-        for line_num, line in enumerate(f, 1):
-            line = line.strip()
-            
-            if not line or line.startswith('#'):
-                continue
-            
-            if '=' in line:
-                key, value = line.split('=', 1)
-                key = key.strip()
-                value = value.strip()
-                if key:  # Only add if key is not empty
-                    constants[key] = value
-    
+    """環境変数から設定値を読み込む"""
     required_keys = [
         'ID_first', 'ID_second', 'password', 'address1',
         'GMAIL_USER', 'GMAIL_APP_PASSWORD', 'NOTIFICATION_EMAIL',
         'SCHEDULE_TIME'
     ]
     
-    missing_keys = [key for key in required_keys if key not in constants]
+    constants = {}
+    missing_keys = []
+    
+    for key in required_keys:
+        value = os.environ.get(key)
+        if value is None:
+            missing_keys.append(key)
+        else:
+            constants[key] = value
+    
     if missing_keys:
-        raise ValueError(f"必須の設定値が不足しています: {', '.join(missing_keys)}")
+        raise ValueError(f"必須の環境変数が不足しています: {', '.join(missing_keys)}")
     
     return constants
-
-
 CONFIG = load_constants()
+
 ID_first = CONFIG['ID_first']
 ID_second = CONFIG['ID_second']
 password = CONFIG['password']
@@ -524,57 +488,29 @@ def main():
         driver.quit()
 
 
-def run_main():
-    """main関数を実行するラッパー関数"""
-    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] スケジュールされたタスクを開始中...")
-    try:
-        main()
-        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] タスクが正常に完了しました。")
-    except Exception as e:
-        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] タスクがエラーで失敗しました: {e}")
-        import traceback
-        traceback.print_exc()
+# def run_main():
+#     """main関数を実行するラッパー関数"""
+#     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] スケジュールされたタスクを開始中...")
+#     try:
+#         main()
+#         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] タスクが正常に完了しました。")
+#     except Exception as e:
+#         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] タスクがエラーで失敗しました: {e}")
+#         import traceback
+#         traceback.print_exc()
 
 
-def run_scheduler():
-    """別スレッドでスケジューラーを実行"""
-    while True:
-        schedule.run_pending()
-        time.sleep(60)
+# def run_scheduler():
+#     """別スレッドでスケジューラーを実行"""
+#     while True:
+#         schedule.run_pending()
+#         time.sleep(60)
 
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("タイムズカー予約自動化 - 日次スケジューラー")
+    print("タイムズカー予約自動化")
     print("=" * 60)
     print(f"開始時刻: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"毎日 {SCHEDULE_TIME} に実行するようにスケジュールされています")
-    print("プロセスは継続的に実行されます...")
     print("=" * 60)
-    
-    schedule.every().day.at(SCHEDULE_TIME).do(run_main)
-    
-    now = datetime.now()
-    schedule_hour, schedule_minute = map(int, SCHEDULE_TIME.split(':'))
-    next_run = now.replace(hour=schedule_hour, minute=schedule_minute, second=0, microsecond=0)
-    if now >= next_run:
-        next_run = next_run + timedelta(days=1)
-    time_until = next_run - now
-    hours, remainder = divmod(time_until.seconds, 3600)
-    minutes, _ = divmod(remainder, 60)
-    print(f"次回実行予定: {next_run.strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"次回実行まで: {time_until.days} 日、{hours} 時間、{minutes} 分")
-    print("=" * 60)
-    print()
-    
-    scheduler_thread = threading.Thread(target=run_scheduler, daemon=True)
-    scheduler_thread.start()
-    
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        print("\n" + "=" * 60)
-        print("スケジューラーをシャットダウン中...")
-        print("=" * 60)
-
+    main()
