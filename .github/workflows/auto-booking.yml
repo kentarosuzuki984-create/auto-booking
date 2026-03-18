@@ -1,0 +1,37 @@
+name: Auto Booking
+
+on:
+  schedule:
+    - cron: '1 15 * * *'  # UTC time — change this!
+  workflow_dispatch:  # allows manual run from GitHub
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run script
+        env:
+          ID_first: ${{ secrets.ID_first }}
+          ID_second: ${{ secrets.ID_second }}
+          password: ${{ secrets.password }}
+          address1: ${{ secrets.address1 }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
+          SCHEDULE_TIME: ${{ secrets.SCHEDULE_TIME }}
+        run: python main.py
