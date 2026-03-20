@@ -2,7 +2,7 @@ name: Auto Booking
 
 on:
   schedule:
-    - cron: '57 11 * * *'  # UTC time — change this!
+    - cron: '03 12 * * *'  # UTC time — change this!
   workflow_dispatch:  # allows manual run from GitHub
 
 jobs:
